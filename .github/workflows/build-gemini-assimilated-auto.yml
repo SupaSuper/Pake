@@ -17,6 +17,8 @@ jobs:
   build:
     name: macos-latest
     runs-on: macos-latest
+    env:
+      PAKE_PROXY_URL: ${{ secrets.PAKE_PROXY_URL }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -37,15 +39,26 @@ jobs:
       - name: Build Gemini Assimilated
         shell: bash
         run: |
-          node dist/cli.js "https://www.google.com/ai" \
-            --name "Gemini Search Assimilated" \
-            --icon "https://raw.githubusercontent.com/SupaSuper/icons/main/gemini-assimilated.png" \
-            --width "1200" \
-            --height "780" \
-            --min-width "900" \
-            --min-height "620" \
-            --app-version "1.0.0" \
-            --hide-title-bar
+          ARGS=(
+            "https://www.google.com/ai"
+            "--name" "Gemini Search Assimilated"
+            "--icon" "https://raw.githubusercontent.com/SupaSuper/icons/main/gemini-assimilated.png"
+            "--width" "1200"
+            "--height" "780"
+            "--min-width" "900"
+            "--min-height" "620"
+            "--app-version" "1.0.0"
+            "--hide-title-bar"
+          )
+
+          if [ -n "$PAKE_PROXY_URL" ]; then
+            ARGS+=("--proxy-url" "$PAKE_PROXY_URL")
+            echo "Proxy URL secret detected; building with Pake proxy support enabled."
+          else
+            echo "No PAKE_PROXY_URL secret set; building without proxy."
+          fi
+
+          node dist/cli.js "${ARGS[@]}"
 
       - name: Upload DMG
         uses: actions/upload-artifact@v6
