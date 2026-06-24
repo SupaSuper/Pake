@@ -12,6 +12,7 @@ permissions:
 env:
   NODE_VERSION: "22"
   PNPM_VERSION: "10.26.2"
+  BUILD_RERUN_MARKER: "proxy-secret-added"
 
 jobs:
   build:
